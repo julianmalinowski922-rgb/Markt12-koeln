@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Markt 12 Kiosk & DHL Paketshop Köln</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Plus Jakarta Sans",sans-serif;}
+
+body{
+background:#05070c;
+color:white;
+overflow-x:hidden;
+}
+
+/* BACKGROUND */
+canvas{
+position:fixed;
+inset:0;
+z-index:-10;
+}
+
+/* NAV */
+nav{
+position:fixed;
+top:0;
+width:100%;
+display:flex;
+justify-content:space-between;
+padding:14px 20px;
+background:rgba(0,0,0,0.4);
+backdrop-filter:blur(10px);
+z-index:999;
+}
+
+.logo{font-weight:900;}
+
+.status{
+padding:6px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:900;
+}
+
+/* HERO */
+.hero{
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+}
+
+.hero h1{font-size:4rem;font-weight:900;}
+
+/* GRID */
+section{
+max-width:1100px;
+margin:auto;
+padding:100px 16px;
+}
+
+h2{
+text-align:center;
+font-size:2.4rem;
+margin-bottom:30px;
+color:#ff2d2d;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:18px;
+}
+
+/* CARDS */
+.card{
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(255,255,255,0.12);
+border-radius:18px;
+padding:26px;
+cursor:pointer;
+transition:0.25s;
+text-align:center;
+font-size:18px;
+}
+
+.card:hover{
+transform:translateY(-10px) scale(1.02);
+}
+
+/* POPUP */
+.popup{
+position:fixed;
+inset:0;
+display:none;
+align-items:center;
+justify-content:center;
+background:rgba(0,0,0,0.85);
+z-index:9999;
+backdrop-filter:blur(10px);
+padding:20px;
+}
+
+.popupBox{
+background:rgba(18,18,20,0.98);
+border-radius:22px;
+width:min(92vw,650px);
+max-height:85vh;
+overflow:auto;
+padding:26px;
+animation:pop .2s ease;
+box-shadow:0 50px 140px rgba(0,0,0,0.85);
+}
+
+@keyframes pop{
+from{transform:scale(0.9);opacity:0;}
+to{transform:scale(1);opacity:1;}
+}
+
+#content{
+margin-top:14px;
+display:flex;
+flex-direction:column;
+gap:14px;
+}
+
+/* FEATURE */
+.feature{
+background:rgba(255,255,255,0.06);
+padding:12px 14px;
+border-radius:12px;
+}
+
+/* TAG */
+.tag{
+display:inline-block;
+padding:4px 10px;
+border-radius:999px;
+background:#ff2d2d;
+font-size:11px;
+margin-bottom:10px;
+}
+
+/* ⭐ REVIEW SYSTEM (NEU ULTRA DESIGN) */
+.reviewCard{
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(255,255,255,0.1);
+border-radius:16px;
+padding:14px;
+display:flex;
+gap:12px;
+}
+
+.avatar{
+width:42px;
+height:42px;
+border-radius:50%;
+background:linear-gradient(135deg,#ff2d2d,#ff7a7a);
+flex-shrink:0;
+}
+
+.reviewBody{
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.reviewTop{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.name{
+font-weight:800;
+}
+
+.meta{
+font-size:11px;
+opacity:0.6;
+}
+
+.stars{
+color:#ffd700;
+font-weight:900;
+font-size:13px;
+}
+
+.reviewText{
+font-size:13px;
+opacity:0.9;
+line-height:1.3;
+}
+
+/* IMPRESSUM */
+.impressum{
+background:white;
+color:black;
+padding:50px;
+border-radius:16px;
+margin-top:70px;
+line-height:1.6;
+}
+
+.impressum strong{color:#ff2d2d;}
+
+/* MOBILE */
+@media(max-width:768px){
+.hero h1{font-size:2.6rem;}
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="scene"></canvas>
+
+<nav>
+<div class="logo">📦 Markt 12</div>
+<div id="status" class="status">...</div>
+</nav>
+
+<section class="hero">
+<h1>Markt 12</h1>
+</section>
+
+<section>
+<h2>Kategorien</h2>
+
+<div class="grid">
+<div class="card" onclick="openInfo('reviews')">⭐ Rezensionen</div>
+<div class="card" onclick="openInfo('dhl')">📦 DHL</div>
+<div class="card" onclick="openInfo('kiosk')">🏪 Kiosk</div>
+<div class="card" onclick="openInfo('speisen')">🍔 Speisen</div>
+</div>
+
+</section>
+
+<!-- POPUP -->
+<div class="popup" id="popup">
+
+<div class="popupBox">
+
+<h3 id="title"></h3>
+<div id="content"></div>
+
+</div>
+
+</div>
+
+<script>
+
+/* STATUS */
+document.getElementById("status").innerText="🟢 Geöffnet";
+
+/* OPEN */
+function openInfo(type){
+
+const popup=document.getElementById("popup");
+const title=document.getElementById("title");
+const content=document.getElementById("content");
+
+popup.style.display="flex";
+
+if(type==="reviews"){
+
+title.innerText="⭐ Google Rezensionen";
+
+content.innerHTML=`
+<div class="tag">4.6 / 5 Sterne</div>
+
+<div class="reviewCard">
+<div class="avatar"></div>
+<div class="reviewBody">
+<div class="reviewTop">
+<div class="name">Janette A.</div>
+<div class="stars">★★★★★</div>
+</div>
+<div class="meta">vor 5 Monaten</div>
+<div class="reviewText">Bester Kiosk in der Gegend, sehr sauber und freundlich.</div>
+</div>
+</div>
+
+<div class="reviewCard">
+<div class="avatar"></div>
+<div class="reviewBody">
+<div class="reviewTop">
+<div class="name">Klaus G.</div>
+<div class="stars">★★★★★</div>
+</div>
+<div class="meta">vor 6 Monaten</div>
+<div class="reviewText">DHL Service extrem schnell und zuverlässig.</div>
+</div>
+</div>
+
+<div class="reviewCard">
+<div class="avatar"></div>
+<div class="reviewBody">
+<div class="reviewTop">
+<div class="name">PAMA SINGH</div>
+<div class="stars">★★★☆☆</div>
+</div>
+<div class="meta">vor 2 Monaten</div>
+<div class="reviewText">Produkt war leider nicht wie erwartet.</div>
+</div>
+</div>
+`;
+}
+
+if(type==="dhl"){
+title.innerText="📦 DHL Service";
+content.innerHTML=`<div class="feature">Pakete abgeben & abholen</div>`;
+}
+
+if(type==="kiosk"){
+title.innerText="🏪 Kiosk";
+content.innerHTML=`<div class="feature">Snacks & Getränke</div>`;
+}
+
+if(type==="speisen"){
+title.innerText="🍔 Speisen";
+content.innerHTML=`<div class="feature">Warme & kalte Snacks</div>`;
+}
+
+}
+
+</script>
+
+</body>
+</html>
